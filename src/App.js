@@ -4,8 +4,7 @@ import './css/App.css';
 function App() {
 
   const [ getConteudo, setConteudo ] = useState( <></> )
-  const [q, setQ] = useState( '' )
-  const [searchParam] = useState( ['status','name'] )	
+  const [busca, setBusca] = useState( [] )	
 
   async function loadAllCharacter( ){
 
@@ -17,7 +16,7 @@ function App() {
     return result.results;
   };
 
-  async function listCharacter( ){
+  async function listCharacter( ){                                        
     const all = await loadAllCharacter( );
 
     return all.map(e => 
@@ -48,18 +47,54 @@ function App() {
     )
   };
 
-  useEffect( ( ) => {
-    async function load(){
-      setConteudo( await listCharacter( ) )
-    }
-    load()
-  }, []);
+  function montarFiltro(tipo, valor){
+    const filtros = new URLSearchParams();               
+    /* filtros = {
 
-  return (
-    <div className='App'>
+    }
+    */ 
+
+    const batata = filtros.get(valor)
+    if (retorno === valor){
+      filtros.delete(tipo)                            
+    }                                                 
+
+    filtros.set(tipo, valor)                            
+
+    setBusca('?'+filtros.toString())                                             
+
+    return filtros                                                
+  } 
+  
+  useEffect( ( ) => {                                                 
+    async function getConteudo(){                                     
+      setConteudo( await listCharacter( ) )                                   
+    }
+    getConteudo()                                                           
+  }, [busca])                                                                 
+
+  return (                                                                
+    <div className='App'> 
       <header className='cabecalho'>
-        <h1>Rick and Morty API</h1>
+        <h1>Rick and Morty API</h1>                                     
+        <h2 href="/">Personagens</h2>
       </header>
+      <div className='filtros'>
+        <span className='filtros-titulo'>Filtros:</span> 
+        <div className='filtro-status'>
+          <b>Status:</b>
+          <span onClick={() => montarFiltro('status', 'dead')}>Vivo</span>
+          <span onClick={() => setBusca('?status=dead')}>Morto</span>
+          <span onClick={() => setBusca('?status=unknown')}>Desconhecido</span>
+        </div>
+        <div className='filtro-genero'>
+          <b>Gênero:</b>
+          <span onClick={() => setBusca('?gender=male')}>Masculino</span>
+          <span onClick={() => setBusca('?gender=female')}>Feminino</span>
+          <span onClick={() => setBusca('?gender=genderless')}>Sem gênero</span>
+          <span onClick={() => setBusca('?gender=unknown')}>Desconhecido</span>
+      </div> 
+      </div>
       <div className='lista-principal'>
         { getConteudo }
       </div>
